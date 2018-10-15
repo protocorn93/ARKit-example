@@ -11,6 +11,7 @@ import UIKit
 enum Menu: String, CaseIterable, CustomStringConvertible {
     case box
     case text
+    case objects
     
     var description: String {
         return self.rawValue
@@ -22,6 +23,8 @@ enum Menu: String, CaseIterable, CustomStringConvertible {
             return SimpleBoxViewController()
         case .text:
             return DisplayingTextViewController()
+        case .objects:
+            return MultipleObjectsViewController()
         }
     }
 }
