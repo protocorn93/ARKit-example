@@ -9,7 +9,7 @@
 import UIKit
 import ARKit
 
-class SimpleBoxViewController: UIViewController, ARSCNViewDelegate {
+class SimpleBoxViewController: UIViewController {
 
     var sceneView: ARSCNView!
     
@@ -24,45 +24,50 @@ class SimpleBoxViewController: UIViewController, ARSCNViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.sceneView = ARSCNView(frame: self.view.frame)
+        setUPSceneview()
         
-        self.view.addSubview(sceneView)
-        // Create a new scene
-        let scene = SCNScene()
-        
-        // Geometry
         let box = SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0)
-        
-        // Materials
-        let material = SCNMaterial()
-        material.diffuse.contents = UIColor.red
-        
-        // Node
-        let node = SCNNode()
-        node.geometry = box
-        node.geometry?.materials = [material]
-        node.position = SCNVector3(0, 0, -0.5)
-        
-        // Add Node
-        scene.rootNode.addChildNode(node)
-        // Allocate Scene
-        sceneView.scene = scene
+        let material = generateMaterial(background: .red)
+        let node = generateNode(with: box, [material], at: SCNVector3(0, 0.1, -0.5))
+        let scene = generateScene(with: [node])
+        self.sceneView.scene = scene
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
-        
-        // Run the view's session
         sceneView.session.run(configuration)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        // Pause the view's session
         sceneView.session.pause()
+    }
+    
+    private func setUPSceneview() {
+        self.sceneView = ARSCNView(frame: self.view.frame)
+        self.view.addSubview(sceneView)
+    }
+    
+    private func generateScene(with nodes: [SCNNode]) -> SCNScene {
+        let scene = SCNScene()
+        nodes.forEach {
+            scene.rootNode.addChildNode($0)
+        }
+        return scene
+    }
+    
+    private func generateNode(with geometry: SCNGeometry, _ materials: [SCNMaterial], at position: SCNVector3) -> SCNNode {
+        let node = SCNNode()
+        node.geometry = geometry
+        node.geometry?.materials = materials
+        node.position = position
+        return node
+    }
+    
+    private func generateMaterial(background: UIColor) -> SCNMaterial {
+        let material = SCNMaterial()
+        material.diffuse.contents = background
+        return material
     }
 }

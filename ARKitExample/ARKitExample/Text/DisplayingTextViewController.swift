@@ -22,22 +22,15 @@ class DisplayingTextViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.sceneView = ARSCNView(frame: self.view.frame)
-        self.view.addSubview(sceneView)
-        
-        let scene = SCNScene()
-        
+        setUPSceneview()
+    
         let textGeometry = SCNText(string: "Hello World", extrusionDepth: 1)
-        textGeometry.firstMaterial?.diffuse.contents = UIColor.black
+        let material = generateMaterial(background: .black)
+        let node = generateNode(with: textGeometry, [material], at: SCNVector3(x: 0, y: 0, z: -1))
+        node.scale = SCNVector3(0.02, 0.02, 0.02)
+        let scene = generateScene(with: [node])
         
-        let textNode = SCNNode(geometry: textGeometry)
-        textNode.position = SCNVector3(0, 0, -0.5)
-        textNode.scale = SCNVector3(0.02, 0.02, 0.02)
-        
-        scene.rootNode.addChildNode(textNode)
-        
-        sceneView.scene = scene
+        self.sceneView.scene = scene
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -49,5 +42,32 @@ class DisplayingTextViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         sceneView.session.pause()
+    }
+    
+    private func setUPSceneview() {
+        self.sceneView = ARSCNView(frame: self.view.frame)
+        self.view.addSubview(sceneView)
+    }
+    
+    private func generateScene(with nodes: [SCNNode]) -> SCNScene {
+        let scene = SCNScene()
+        nodes.forEach {
+            scene.rootNode.addChildNode($0)
+        }
+        return scene
+    }
+    
+    private func generateNode(with geometry: SCNGeometry, _ materials: [SCNMaterial], at position: SCNVector3) -> SCNNode {
+        let node = SCNNode()
+        node.geometry = geometry
+        node.geometry?.materials = materials
+        node.position = position
+        return node
+    }
+    
+    private func generateMaterial(background: UIColor) -> SCNMaterial {
+        let material = SCNMaterial()
+        material.diffuse.contents = background
+        return material
     }
 }
