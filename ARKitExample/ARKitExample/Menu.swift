@@ -12,6 +12,7 @@ enum Menu: String, CaseIterable, CustomStringConvertible {
     case box
     case text
     case objects
+    case plane
     
     var description: String {
         return self.rawValue
@@ -25,6 +26,8 @@ enum Menu: String, CaseIterable, CustomStringConvertible {
             return DisplayingTextViewController()
         case .objects:
             return MultipleObjectsViewController()
+        case .plane:
+            return PlainDetectingViewController()
         }
     }
 }

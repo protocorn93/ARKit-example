@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E4694B82176065A001B5FE5 /* BaseARViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E4694B72176065A001B5FE5 /* BaseARViewController.swift */; };
+		3E4694BA21760DDF001B5FE5 /* PlainDetectingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E4694B921760DDF001B5FE5 /* PlainDetectingViewController.swift */; };
 		3E71906021749B4800CB4510 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E71905F21749B4800CB4510 /* AppDelegate.swift */; };
 		3E71906221749B4800CB4510 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E71906121749B4800CB4510 /* art.scnassets */; };
 		3E71906421749B4800CB4510 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E71906321749B4800CB4510 /* MainViewController.swift */; };
@@ -22,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3E4694B72176065A001B5FE5 /* BaseARViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseARViewController.swift; sourceTree = "<group>"; };
+		3E4694B921760DDF001B5FE5 /* PlainDetectingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlainDetectingViewController.swift; sourceTree = "<group>"; };
 		3E71905C21749B4800CB4510 /* ARKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ARKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E71905F21749B4800CB4510 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3E71906121749B4800CB4510 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -49,6 +53,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3E4694B621760588001B5FE5 /* Plane Detecting */ = {
+			isa = PBXGroup;
+			children = (
+				3E4694B921760DDF001B5FE5 /* PlainDetectingViewController.swift */,
+			);
+			path = "Plane Detecting";
+			sourceTree = "<group>";
+		};
 		3E71905321749B4800CB4510 = {
 			isa = PBXGroup;
 			children = (
@@ -68,6 +80,7 @@
 		3E71905E21749B4800CB4510 /* ARKitExample */ = {
 			isa = PBXGroup;
 			children = (
+				3E4694B621760588001B5FE5 /* Plane Detecting */,
 				3E7190832174B29400CB4510 /* images */,
 				3E71907C2174ADC100CB4510 /* Multiple Objects */,
 				3E7190782174A8C400CB4510 /* Text */,
@@ -80,6 +93,7 @@
 				3E71906821749B4900CB4510 /* Assets.xcassets */,
 				3E71906A21749B4900CB4510 /* LaunchScreen.storyboard */,
 				3E71906D21749B4900CB4510 /* Info.plist */,
+				3E4694B72176065A001B5FE5 /* BaseARViewController.swift */,
 			);
 			path = ARKitExample;
 			sourceTree = "<group>";
@@ -192,7 +206,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E71906421749B4800CB4510 /* MainViewController.swift in Sources */,
+				3E4694B82176065A001B5FE5 /* BaseARViewController.swift in Sources */,
 				3E71907E2174ADDE00CB4510 /* MultipleObjectsViewController.swift in Sources */,
+				3E4694BA21760DDF001B5FE5 /* PlainDetectingViewController.swift in Sources */,
 				3E71907421749C1A00CB4510 /* SimpleBoxViewController.swift in Sources */,
 				3E7190772174A87A00CB4510 /* Menu.swift in Sources */,
 				3E71907A2174A8DD00CB4510 /* DisplayingTextViewController.swift in Sources */,
