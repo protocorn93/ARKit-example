@@ -12,6 +12,7 @@ import ARKit
 class PlainDetectingViewController: BaseARViewController, ARSCNViewDelegate {
     
     private var label: UILabel!
+    var planes: [OverlayPlane] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +50,7 @@ class PlainDetectingViewController: BaseARViewController, ARSCNViewDelegate {
 
 extension PlainDetectingViewController {
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        /*
         DispatchQueue.main.async {
             self.label.text = "Plane Detected"
             
@@ -58,5 +60,23 @@ extension PlainDetectingViewController {
                 self.label.alpha = 0
             })
         }
+         */
+        guard let anchor = anchor as? ARPlaneAnchor else { return }
+        let plane = OverlayPlane(anchor: anchor)
+        self.planes.append(plane)
+        node.addChildNode(plane)
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        guard let anchor = anchor as? ARPlaneAnchor else { return }
+        let plane = self.planes.filter {
+            $0.anchor.identifier == anchor.identifier
+        }.first
+        
+        if plane == nil {
+            return
+        }
+        
+        plane?.update(anchor: anchor)
     }
 }
