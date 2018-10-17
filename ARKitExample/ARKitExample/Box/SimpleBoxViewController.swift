@@ -34,6 +34,11 @@ class SimpleBoxViewController: BaseARViewController {
     @objc func handleTapped(_ gesture: UITapGestureRecognizer) {
         guard let sceneView = gesture.view as? ARSCNView else { return }
         let location = gesture.location(in: sceneView)
+        changeMaterial(of: sceneView, at: location)
+        capture()
+    }
+    
+    private func changeMaterial(of sceneView: ARSCNView, at location: CGPoint) {
         let results = sceneView.hitTest(location, options: [:])
         
         if !results.isEmpty {
@@ -42,5 +47,20 @@ class SimpleBoxViewController: BaseARViewController {
             let color = material?.diffuse.contents as? UIColor
             material?.diffuse.contents = color == UIColor.red ? UIColor.black : UIColor.red
         }
+    }
+    
+    private func capture() {
+        guard let currentFrame = self.sceneView.session.currentFrame else { return }
+        
+        let imagePlane = SCNPlane(width: sceneView.bounds.width / 6000, height: sceneView.bounds.height / 6000)
+        imagePlane.firstMaterial?.diffuse.contents = self.sceneView.snapshot()
+        imagePlane.firstMaterial?.lightingModel = .constant
+        
+        let planeNode = SCNNode(geometry: imagePlane)
+        self.sceneView.scene.rootNode.addChildNode(planeNode)
+        
+        var translation = matrix_identity_float4x4
+        translation.columns.3.z = -0.1
+        planeNode.simdTransform = matrix_multiply(currentFrame.camera.transform, translation)
     }
 }
