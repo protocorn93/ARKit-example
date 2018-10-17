@@ -46,6 +46,28 @@ class PlainDetectingViewController: BaseARViewController, ARSCNViewDelegate {
         
         self.sceneView.session.run(configuration)
     }
+    
+    override func handleSceneViewTapGesture(_ gesture: UITapGestureRecognizer) {
+        guard let sceneView = gesture.view as? ARSCNView else { return }
+        let location = gesture.location(in: sceneView)
+        let hitTestResult = sceneView.hitTest(location, types: .existingPlaneUsingExtent)
+        guard let result = hitTestResult.first else { return }
+        addBox(on: result)
+    }
+    
+    private func addBox(on result: ARHitTestResult) {
+        let box = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0)
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.red
+        box.materials = [material]
+        
+        let node = SCNNode(geometry: box)
+        let worldTransform = result.worldTransform
+        node.position = SCNVector3(worldTransform.columns.3.x,
+                                   worldTransform.columns.3.y,
+                                   worldTransform.columns.3.z)
+        self.sceneView.scene.rootNode.addChildNode(node)
+    }
 }
 
 extension PlainDetectingViewController {
