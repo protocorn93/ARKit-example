@@ -37,8 +37,25 @@ class BaseARViewController: UIViewController {
     }
     
     func setUPSceneview() {
-        self.sceneView = ARSCNView(frame: self.view.frame)
+        self.sceneView = ARSCNView()
+        self.sceneView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(sceneView)
+        
+        self.sceneView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        self.sceneView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        self.sceneView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
+        self.sceneView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+        
+        self.registerTapGestureOnSceneView()
+        self.view.addSubview(sceneView)
+    }
+    
+    private func registerTapGestureOnSceneView() {
+        self.sceneView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSceneViewTapGesture)))
+    }
+    
+    @objc func handleSceneViewTapGesture(_ gesture: UITapGestureRecognizer) {
+        
     }
     
     func generateScene(with nodes: [SCNNode]) -> SCNScene {
