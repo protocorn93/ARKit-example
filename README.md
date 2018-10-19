@@ -93,7 +93,7 @@ AR 세션을 실행시키기 위해선 당신이 제작하는 앱이나 게임�
 
   > 아래의 그림에서 노란색 십자가들이 Feature point들로 ARKit가 현재 프레임 내에서 특징적인 부분이라고 생각한 지점이다.
 
-  <img src="./images/3.png" height=150>
+  <img src="./images/3.png" width=400>
 
 - **`ARAnchor`**
   - 카메라의 움직임에 따른 오브젝트의 위치와 방향을 트래킹하는데 사용할 수 있으며 구성하는 `ARConfiguration`의 종류에 따라 세션은 자동으로 `ARAnchor`를 추가하기도 한다. 현재 장면에서 오브젝트를 추가하여 해당 위치에 고정시키고 싶다면 `ARAnchor`를 추가하면 된다. 
@@ -145,7 +145,7 @@ session.run(configuration)
 
 > 카메라 뷰가 활성화되었을 때 후면 카메라가 향하고 있는 방향이 `-z` 방향이다. 카메라의 시작점이 `(0,0,0)`이 된다.
 
-<img src="./images/5.png">
+<img src="./images/5.png" width=400>
 
 
 
