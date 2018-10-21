@@ -15,21 +15,14 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupSceneView()
+        addGestureOnSceneView()
+    }
+    
+    private func setupSceneView() {
         sceneView.delegate = self
         sceneView.showsStatistics = true
-        
-        // Default Lighting
-        sceneView.autoenablesDefaultLighting = true
-        
-        // Creating SCNScene
-        
-        let scene = SCNScene()
-        
-        sceneView.scene = scene
         sceneView.debugOptions = [.showFeaturePoints]
-        
-        addGestureOnSceneView()
     }
     
     private func addGestureOnSceneView() {
@@ -39,15 +32,14 @@ class ViewController: UIViewController {
     @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         guard let sceneView = gesture.view as? ARSCNView else { return }
         let location = gesture.location(in: sceneView)
-        let hitResult = sceneView.hitTest(location, types: .existingPlaneUsingExtent)
+        let hitResult = sceneView.hitTest(location, types: [.existingPlane, .existingPlaneUsingExtent])
         guard let result = hitResult.first else { return }
         
-        guard let treeScene = SCNScene(named: "art.scnassets/tree.scn") else { return }
-        guard let node = treeScene.rootNode.childNode(withName: "Tree", recursively: true) else { return }
+        guard let treeScene = SCNScene(named: "art.scnassets/box.scn") else { return }
+        guard let node = treeScene.rootNode.childNode(withName: "box", recursively: true) else { return }
         
         node.position = SCNVector3(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
-        
-        self.sceneView.scene.rootNode.addChildNode(node)
+        sceneView.scene.rootNode.addChildNode(node)
     }
     
     override func viewWillAppear(_ animated: Bool) {
