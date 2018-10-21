@@ -21,18 +21,27 @@
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FL0-YF-adX">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                             </arscnView>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pzs-iG-WsN">
+                                <rect key="frame" x="166.5" y="40" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="Pzs-iG-WsN" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="2HX-la-Nrf"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="FL0-YF-adX" secondAttribute="trailing" id="3Q5-k6-vJo"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="FL0-YF-adX" secondAttribute="bottom" id="ZBi-Gt-AhM"/>
                             <constraint firstItem="FL0-YF-adX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="hKt-h6-Wqw"/>
+                            <constraint firstItem="Pzs-iG-WsN" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="pPq-79-5lU"/>
                             <constraint firstItem="FL0-YF-adX" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="xki-yn-RCq"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
                         <outlet property="sceneView" destination="FL0-YF-adX" id="F6P-3T-a3E"/>
+                        <outlet property="trackingQualityLabel" destination="Pzs-iG-WsN" id="Lcz-dJ-XmW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

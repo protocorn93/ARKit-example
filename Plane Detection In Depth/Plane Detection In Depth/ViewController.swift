@@ -11,35 +11,15 @@ import ARKit
 
 class ViewController: UIViewController {
     
+    //MARK: Outlets
     @IBOutlet weak var sceneView: ARSCNView!
-
+    @IBOutlet weak var trackingQualityLabel: UILabel!
+    
+    //MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSceneView()
         addGestureOnSceneView()
-    }
-    
-    private func setupSceneView() {
-        sceneView.delegate = self
-        sceneView.showsStatistics = true
-        sceneView.debugOptions = [.showFeaturePoints]
-    }
-    
-    private func addGestureOnSceneView() {
-        self.sceneView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
-    }
-    
-    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        guard let sceneView = gesture.view as? ARSCNView else { return }
-        let location = gesture.location(in: sceneView)
-        let hitResult = sceneView.hitTest(location, types: [.existingPlane, .existingPlaneUsingExtent])
-        guard let result = hitResult.first else { return }
-        
-        guard let treeScene = SCNScene(named: "art.scnassets/box.scn") else { return }
-        guard let node = treeScene.rootNode.childNode(withName: "box", recursively: true) else { return }
-        
-        node.position = SCNVector3(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
-        sceneView.scene.rootNode.addChildNode(node)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -54,10 +34,49 @@ class ViewController: UIViewController {
         super.viewWillDisappear(animated)
         self.sceneView.session.pause()
     }
+    
+    private func setupSceneView() {
+        sceneView.delegate = self
+        sceneView.showsStatistics = true
+        sceneView.debugOptions = [.showFeaturePoints]
+    }
+    
+    private func addGestureOnSceneView() {
+        self.sceneView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
+    }
+    
+    private func handleQualityOfTracking(with state: ARCamera.TrackingState) {
+        trackingQualityLabel.text = "\(state)"
+        UIView.animate(withDuration: 1, animations: {
+            self.trackingQualityLabel.alpha = 1
+        }) { _ in
+            UIView.animate(withDuration: 0.5, animations: {
+                self.trackingQualityLabel.alpha = 0
+            })
+        }
+    }
+    
+    //MARK: Actions
+    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+        guard let sceneView = gesture.view as? ARSCNView else { return }
+        let location = gesture.location(in: sceneView)
+        let hitResult = sceneView.hitTest(location, types: [.existingPlane, .existingPlaneUsingExtent])
+        guard let result = hitResult.first else { return }
+        
+        guard let treeScene = SCNScene(named: "art.scnassets/box.scn") else { return }
+        guard let node = treeScene.rootNode.childNode(withName: "box", recursively: true) else { return }
+        
+        node.position = SCNVector3(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
+        sceneView.scene.rootNode.addChildNode(node)
+    }
 }
 
 //MARK: ARSessionDelegate
 extension ViewController: ARSessionDelegate {
+    
+    func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
+        handleQualityOfTracking(with: camera.trackingState)
+    }
     
     // This function is called whenever a new ARAnchor is rendered in the scene
     // (a.k.a. whenever a horizontal plane is detected )
@@ -96,4 +115,3 @@ extension ViewController: ARSessionDelegate {
 extension ViewController: ARSCNViewDelegate {
     
 }
-
