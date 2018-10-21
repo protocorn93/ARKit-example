@@ -108,6 +108,8 @@ AR 세션을 실행시키기 위해선 당신이 제작하는 앱이나 게임�
 >
 > 이에 대한 의문점이 해결되면 추후에 작성해봐야겠다.
 
+----
+
 ### Tracking
 
 #### World Tracking
@@ -195,4 +197,98 @@ func sessionInterruptionEnded(_ session: ARSession) {
 ```
 
 > Interruption은 세션을 수동으로 정지시키는 것과 동일하다. 이 콜백에 대한 응답으로 `pause ()`를 호출하면 인터럽트가 끝날 때 앱에 알림이 전송되지 않습니다
+
+---
+
+### Scene Understanding 
+
+직역하자면 "장면 이해" 정도로 할 수 있다. 즉 현재 실제 세상의 환경을 이해한다는 것인데 어떤 것들을 "이해"하는지 알아보도록 하자.
+
+첫 번째로 만일 하나의 테이블이 존재하고 그 위에 오브젝트를 하나 올린다고 하자. 우리는 이 테이블을 인식할 필요가 있고 이 테이블을 하나의 면(Plane)이라고 인식해야 오브젝트를 단순히 띄우는 것이 아닌 테이블 위에 올려놓을 수 있다. 이를 위해 필요한 것이 **면 감지(Plane Detection)**이다. 
+
+두 번째는 이렇게 면이 감지 되면 오브젝트를 위치시키는데 필요한 3D 좌표점을 찾아야 하는데 이를 위해 사용되는 것이 바로 **Hit-testing**이다. 이러한 좌표점은 디바이스에서 ray를 쏘아 실제 세상과의 교차점이 된다. 
+
+> iOS를 공부해본 사람이라면 Hit-testing이라는 용어가 낯설지 않을 것이다. 바로 디바이스에 터치 이벤트가 발생하였을 때 이 터치가 일어난 View를 찾는 행위를 Hit-testing이라고 한다. 
+>
+> 본인도 이것에 대해 정리해본 적이 있다. [Hit-testing in iOS](http://baked-corn.tistory.com/128)
+
+세 번째는 오브젝트를 보다 현실적으로 보이기 위해선 주변 환경의 조명에 맞게 반응하도록 하는 것이 중요하다. 이를 위해 사용되는 것이 바로 **빛 판단(Light Estimation)**이다.
+
+이들 각각을 좀 더 자세히 살펴보도록 하자
+
+#### Plane Detection
+
+- **Horizontal with respect to gravity** - 면 감지를 통해 우리는 중력과 관련된 평면을 만들어 제공한다. 위에서와 같이 테이블 면이 될 수도 있고 지면이 될 수도 있다.
+
+- **Runs over multiple frames** -  ARKit는 이를 다수의 프레임으로부터 넘어온 데이터를 바탕으로 감지해내는데 그렇기 때문에 이 행위는 백그라운드에서 돌아간다. 다수의 프레임을 사용하기 때문에 사용자가 디바이스를 움직여 면을 포함하는 프레임이 많아지만다면 면에 대한 인식도가 높아지게 된다. 
+
+- **Aligned extent for surface** 
+
+  > - [This also allows us to retrieve ](https://developer.apple.com/videos/play/wwdc2017-602/?time=1718)[an aligned extent of this plane, ](https://developer.apple.com/videos/play/wwdc2017-602/?time=1722)[which means that we're fitting a ](https://developer.apple.com/videos/play/wwdc2017-602/?time=1724)[rectangle around all detected ](https://developer.apple.com/videos/play/wwdc2017-602/?time=1725)[parts of this plane and align it ](https://developer.apple.com/videos/play/wwdc2017-602/?time=1727)[with the major extent.](https://developer.apple.com/videos/play/wwdc2017-602/?time=1730)
+  >   - 영상과 스크립트에는 다음과 같이 설명하고 있다. 하지만 extent라는 것이 정확히 어떤 것을 의미하는지에 대한 이해가 부족하다. 정렬되었다는 것이 무엇을 어떠한 기준으로 정렬하였고 major extent 역시 그 의미가 모호하여 좀 더 공부하 필요하다.
+  > - `ARPlaneAnchor`의 `extent` 프로퍼티의 대한 공식 문서의 설명을 살펴보면 감지된 면의 너비와 길이의 추정치라고 설명이 되어있다. 공식 문서의 설명을 덧붙이자면 장면 분석(scene analysis)과 지면 감지가 계속해서 진행될 수록 ARKit는 이전에 감지된 면의 앵커는 실제 세상의 면의 일부라 판단을 하고 `extent`의 너비와 길이 값을 증가시켜간다고 설명되어 있다.
+
+- **Plane merging** - 만일 같은 물리적 면에 여러 가상의 면이 감지된다면 ARKit는 이들을 하나의 면으로 합칠 수 있다. 이렇게 합쳐진 면은 두 면의 크기보다 커질 것이고 그렇게 되면 가장 최근에 인식된 면은 세션으로부터 제거될 것이다. 
+
+
+
+#### ARPlaneAnchor
+
+그리고 이렇게 하나의 면이 감지되면 우리는 감지된 면 위에 오브젝트를 위치시킬 수 있는 `ARPlaneAnchor`를 얻을 수 있다. 이는 ARKit에 의해 자동으로 인식된다. 이런식으로 `ARPlaneAnchor`가 감지되면 델리게이트 메소드가 호출된다. 그리고 이렇게 추가된 `ARPlaneAnchor`로 감지된 면을 시각화할 수 있다. 
+
+```swift
+func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+    addPlaneGeometry(forAnchors: anchors)
+}
+```
+
+그리고 위에서 언급한 것 처럼 디바이스를 움직일 수록 면에 대한 인식이 높아지고 이는 기존 면의 확장으로 이어질 수 있다. 그리고 이는 `ARPlaneAnchor`의 갱신으로 이어지는데 이를 통해 `session(_:,didUpdate:)` 메소드가 호출된다.
+
+```swift
+func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+    updatePlaneGeometry(forAnchors: anchors)
+}
+```
+
+이렇게 면이 확장된다면 기존의 중심점은 확장된 면의 중심점으로 옮겨가게 된다. 그리고 앵커가 제거될 때 호출되는 `didRemove(_:,didRemove:)` 메소드 역시 존재한다. 
+
+```swift
+func session(_ session: ARSession, didRemove anchors: [ARAnchor]) {
+    removePlaneGeometry(forAnchors: anchors)
+}
+```
+
+
+
+#### Hit-testing
+
+이제 주변에 면(Plane)이 어디있는지 알고 있다. 그럼 이제 어떻게 이 면에 물체를 위치시키는지에 대해 알아보자. Hit-testing은 이를 위해 사용된다. 
+
+Hit-testing은 디바이스에서 광선을 쏘아서 광선과 실제 세상의 교차점을 찾는 과정이다. 이 과정에는 `ARWorldTrackingConfiguration`과정을 통해 얻은 면이나 3D Feature point 등의 정보들을 활용한다. 그리고 이렇게 찾아낸 교차점들을 거리 순으로 정렬된 결과로 반환한다. 그렇기 때문에 가장 첫 번째 요소는 카메라에서 가장 가까운 교차점이라고 볼 수 있다. 
+
+그리고 이를 수행하는 방법에는 여러 가지 방법이 존재한다. 이는 [`ARHitTestResult.ResultType`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype)을 통해 지정할 수 있다. 그럼 이 타입들을 하나씩 살펴보도록 하자.
+
+- [`featurePoint`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2875708-featurepoint) - ARKit에 의해 감지된 특징 점들로 감지된 면에 속하지는 않는다. 면 감지를 하기엔 정보가 부족한 상황에서 광선의 교차점 주변의 특징 점들을 반환해준다. 반드시 알고 있어야할 것은 이 점들은 평평한 면에 반드시 속하진 않는다는 것이다. 
+  - [`rawFeaturePoints`](https://developer.apple.com/documentation/arkit/arframe/2887449-rawfeaturepoints)
+- [`estimatedHorizontalPlane`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2887460-estimatedhorizontalplane) - 면 감지를 통해 우리는 오브젝트를 위치시킬 수 있는 면을 찾는다. 하지만 이러한 과정은 시간이 소요되고 그 대신 우리는 이 옵션을 사용할 수 있다. 하지만 그에 반해 이 옵션의 정확도는 떨어지기 때문에 이미 면이 감지되어 있고 `estimatedHorizontalPlane`과 `existingPlane`을 모두 포함하고 있다면 Hit-testing 결과는 `existingPlane`에 대한 결과만 반환할 것이다. 
+- [`estimatedVerticalPlane`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2887455-estimatedverticalplane) - Horizontal과 동일
+- [`existingPlane`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2875738-existingplane) - 면 감지에 의해 이미 감지된 면 위의 점들을 결과로 반환하며 면의 너비는 고려하지 않는다. 그렇기 때문에 그 너비는 무한하다고 판단한다.
+- [`existingPlaneUsingExtent`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2887459-existingplaneusingextent) - 면 감지에 의해 이미 감지된 면 위의 점들을 결과로 반환하는데 면의 중심과 크기에 의해 정해진 영역안의 속하는 점들만을 결과로 반환한다. 하지만 이 영역은 실제 세상 표면의 일부가 아닌 면이 포함될수도 있고 같은 면에 속하지만 아직 ARKit가 같은 영역이라 판단하지 못한 면도 있을 수 있다. 그렇기 때문에 [`existingPlaneUsingGeometry`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2942264-existingplaneusinggeometry)를 이용해 보다 정확한 판단을 하거나 [`existingPlane`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2875738-existingplane)을 통해 확장된 면의 결과를 사용할 수 있다. 
+- [`existingPlaneUsingGeometry`](https://developer.apple.com/documentation/arkit/arhittestresult/resulttype/2942264-existingplaneusinggeometry) - 면 감지에 의해 이미 감지된 면 위의 점들로 면의 예상 크기와 모양 영역 내의 결과로 이는 면의 [`geometry`](https://developer.apple.com/documentation/arkit/arplaneanchor/2941025-geometry)에 의해 정해진 영역 안의 결과들만을 반환한다. 
+
+
+
+#### Light Estimation
+
+캡쳐된 이미지의 주변 채도를 기반으로 한다. 1000 루멘을 기본으로 하며 이 기능은 기본적으로 활성화되어 있다. 이 기능을 이용하여 오브젝트에 실제 세상의 채도에 따른 쉐이딩을 적용할 수 있다.
+
+```swift
+configuration.isLightEstimatedEnabled = true
+let intensity = frame.lightEstimate?.ambientIntensity
+let temperature = frame.lightEstimate?.ambientColorTemperature
+```
+
+
+
+
 
