@@ -13,6 +13,11 @@ ARKit를 공부하며 이해한 것을 바탕으로 기록해보았습니다. �
 
 - 추후 업데이트 예정
 
+*Code Implementation*
+
+- [Class References and Implementation using SceneKit](https://ehdrjsdlzzzz.github.io/2018/10/13/ARKit-Reference-1/)
+- [Detecting Plane and Placing Object](https://ehdrjsdlzzzz.github.io/2018/10/28/ARKit-Reference-2/)
+
 ---
 
 ### [Introducing ARKit: Augmented Reality for iOS - WWDC 2017](https://developer.apple.com/videos/play/wwdc2017/602)
