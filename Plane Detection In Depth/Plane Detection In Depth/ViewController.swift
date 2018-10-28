@@ -60,26 +60,20 @@ class ViewController: UIViewController {
     @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         guard let sceneView = gesture.view as? ARSCNView else { return }
         let location = gesture.location(in: sceneView)
-        let hitResult = sceneView.hitTest(location, types: [.existingPlane, .existingPlaneUsingExtent])
+        let hitResult = sceneView.hitTest(location, types: [.existingPlane,.existingPlaneUsingExtent])
         guard let result = hitResult.first else { return }
         
         guard let treeScene = SCNScene(named: "art.scnassets/box.scn") else { return }
-        guard let node = treeScene.rootNode.childNode(withName: "box", recursively: true) else { return }
+        guard let node = treeScene.rootNode.childNode(withName: "box", recursively: false) else { return }
         
         node.position = SCNVector3(result.worldTransform.columns.3.x, result.worldTransform.columns.3.y, result.worldTransform.columns.3.z)
         sceneView.scene.rootNode.addChildNode(node)
     }
 }
 
-//MARK: ARSessionDelegate
-extension ViewController: ARSessionDelegate {
+//MARK:- ARSCNViewDelegate
+extension ViewController: ARSCNViewDelegate {
     
-    func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
-        handleQualityOfTracking(with: camera.trackingState)
-    }
-    
-    // This function is called whenever a new ARAnchor is rendered in the scene
-    // (a.k.a. whenever a horizontal plane is detected )
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         guard let anchor = anchor as? ARPlaneAnchor else { return }
         let planeNode = SCNNode()
@@ -97,6 +91,7 @@ extension ViewController: ARSessionDelegate {
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        
         guard let anchor = anchor as? ARPlaneAnchor else { return }
         guard let node = node.childNodes.first else { return }
         
@@ -108,10 +103,11 @@ extension ViewController: ARSessionDelegate {
         
         node.geometry = plane
         node.position = SCNVector3(anchor.center.x, 0, anchor.center.z)
-    }
-}
 
-//MARK:- ARSCNViewDelegate
-extension ViewController: ARSCNViewDelegate {
+    }
     
+    // ARSessionObserver
+    func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
+        handleQualityOfTracking(with: camera.trackingState)
+    }
 }
